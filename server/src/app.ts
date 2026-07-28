@@ -9,6 +9,9 @@ import { db } from './config/db';
 import passport from 'passport';
 import './config/passport';
 import authRoutes from './modules/auth/auth.routes';
+import routinesRoutes from './modules/routines/routines.routes';
+import studentsRoutes from './modules/students/students.routes';
+import exercisesRoutes from './modules/exercises/exercise.routes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -40,6 +43,9 @@ app.get('/health', async (req: express.Request, res: express.Response) => {
 
 
 app.use('/api/auth', authRoutes);
+app.use('/api/routines', routinesRoutes);
+app.use('/api/students', studentsRoutes);
+app.use('/api/exercises', exercisesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
