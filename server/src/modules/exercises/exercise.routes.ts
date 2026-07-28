@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { roleMiddleware } from '../../middlewares/roleMiddle';
 import { authMiddleware } from '../../middlewares/auth.middle';
+import * as controller from './exercise.controller';
 
 const router = Router();
 
