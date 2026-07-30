@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import { createPaymentService, getPaymentsByStudentIdService, getPaymentByIdService } from './payments.service';
+import { createPaymentService, getPaymentsByStudentIdService, getPaymentByIdService } from './payment.service';
 
 //funcao para criar um pagamento pelo treinador:
 export async function createPayment(req: Request, res: Response, next: NextFunction) {

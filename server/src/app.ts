@@ -14,6 +14,7 @@ import studentsRoutes from './modules/students/students.routes';
 import exercisesRoutes from './modules/exercises/exercise.routes';
 import routineExercises from './modules/routinesExcercises/routine_ex.route';
 import paymentsRoutes from './modules/payments/payments.route';
+import webHookRoutes from './modules/webhooks/webHook.route';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -50,6 +51,7 @@ app.use('/api/students', studentsRoutes);
 app.use('/api/exercises', exercisesRoutes);
 app.use('/api/routine-exercises', routineExercises);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/webhooks', webHookRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
