@@ -2,6 +2,8 @@ import { db } from '../../config/db';
 import { createHmac } from 'crypto';
 import { Payment } from 'mercadopago';
 import client from '../../config/mercadoPago';
+import { RowDataPacket } from 'mysql2';
+import { createNotificationService } from '../notifications/notific.service';
 
 export async function paymentNotificationService(paymentId: string, xSignature: string, xRequestId: string) {
 
@@ -28,16 +30,35 @@ export async function paymentNotificationService(paymentId: string, xSignature: 
         return { status: mpPayment.status };
     }
 
-    // actualizar pago y activar alumno
-    const [updatePayment] = await db.query(
+    // obtener datos del pago, alumno y trainer 
+    const [rows] = await db.query<RowDataPacket[]>(
+        `SELECT p.student_id, u.name AS student_name, u.trainer_id 
+         FROM payments p 
+         JOIN users u ON u.id = p.student_id 
+         WHERE p.mp_payment_id = ?`,
+        [paymentId]
+    );
+
+    if (rows.length === 0) {
+        throw new Error('Payment not found in database');
+    }
+
+    const { student_id, student_name, trainer_id } = rows[0];
+
+    // actualizar pago
+    await db.query(
         'UPDATE payments SET status = ? WHERE mp_payment_id = ?',
         ['approved', paymentId]
     );
 
-    const [activateStudent] = await db.query(
-        'UPDATE users SET status = ? WHERE id = (SELECT student_id FROM payments WHERE mp_payment_id = ?)',
-        ['active', paymentId]
+    // activar alumno
+    await db.query(
+        'UPDATE users SET status = ? WHERE id = ?',
+        ['active', student_id]
     );
+
+    // notificar al trainer
+    await createNotificationService(trainer_id, `${student_name} pagou o plano`);
 
     return { status: 'approved' };
 }

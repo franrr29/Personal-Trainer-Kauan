@@ -21,6 +21,17 @@ CREATE TABLE payments (
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  trainer_id INT NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  type ENUM('payment') DEFAULT 'payment',
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (trainer_id) REFERENCES users(id)
+);
+
+
 CREATE TABLE exercises (
   id INT PRIMARY KEY AUTO_INCREMENT,
   trainer_id INT NOT NULL,
