@@ -23,7 +23,7 @@ export async function googleCallback(req: any, res: any) {
 }
 
 
-//funcão para obter o usuário autenticado a partir do token JWT
+//funcão para obter o usuario autenticado a partir do token JWT ouseja o cookie de autenticação do propio treinador /auth/me
 export async function getUser(req: any, res: any) {
 
     const token = req.cookies.token;

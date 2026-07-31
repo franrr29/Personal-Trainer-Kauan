@@ -2,27 +2,28 @@ import { db } from '../../config/db';
 import { createHmac } from 'crypto';
 import { Payment } from 'mercadopago';
 import client from '../../config/mercadoPago';
-import { RowDataPacket } from 'mysql2';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { createNotificationService } from '../notifications/notific.service';
+
 
 export async function paymentNotificationService(paymentId: string, xSignature: string, xRequestId: string) {
 
-    // separar ts y v1 del header x-signature
+    // separar ts e v1 do header x-signature
     const parts = xSignature.split(',');
     const ts = parts.find(p => p.trim().startsWith('ts='))?.split('=')[1];
     const v1 = parts.find(p => p.trim().startsWith('v1='))?.split('=')[1];
 
-    // armar el string y calcular el hmac
+    // montar a string e calcular o hmac
     const manifest = `id:${paymentId};request-id:${xRequestId};ts:${ts};`;
     const secret = process.env.MP_WEBHOOK_SECRET || '';
     const hash = createHmac('sha256', secret).update(manifest).digest('hex');
 
-    // comparar firma
+    // comparar a assinatura
     if (hash !== v1) {
         throw new Error('Invalid webhook signature');
     }
 
-    // consultar el pago real a la api de mp
+    // consultar o pagamento real na api do mp
     const payment = new Payment(client);
     const mpPayment = await payment.get({ id: paymentId });
 
@@ -30,12 +31,9 @@ export async function paymentNotificationService(paymentId: string, xSignature: 
         return { status: mpPayment.status };
     }
 
-    // obtener datos del pago, alumno y trainer 
+    // buscar dados do aluno e trainer salvos em payments
     const [rows] = await db.query<RowDataPacket[]>(
-        `SELECT p.student_id, u.name AS student_name, u.trainer_id 
-         FROM payments p 
-         JOIN users u ON u.id = p.student_id 
-         WHERE p.mp_payment_id = ?`,
+        'SELECT id, name, email, phone, trainer_id FROM payments WHERE mp_payment_id = ?',
         [paymentId]
     );
 
@@ -43,22 +41,22 @@ export async function paymentNotificationService(paymentId: string, xSignature: 
         throw new Error('Payment not found in database');
     }
 
-    const { student_id, student_name, trainer_id } = rows[0];
+    const { id: localPaymentId, name, email, phone, trainer_id } = rows[0];
 
-    // actualizar pago
-    await db.query(
-        'UPDATE payments SET status = ? WHERE mp_payment_id = ?',
-        ['approved', paymentId]
+    // criar o usuario como student e atribuir ao trainer
+    const [userResult] = await db.execute<ResultSetHeader>(
+        "INSERT INTO users (name, email, phone, role, trainer_id, status) VALUES (?, ?, ?, 'student', ?, 'active')",
+        [name, email, phone, trainer_id]
     );
 
-    // activar alumno
+    // atualizar o payment com o user_id e status aprovado
     await db.query(
-        'UPDATE users SET status = ? WHERE id = ?',
-        ['active', student_id]
+        'UPDATE payments SET user_id = ?, status = ? WHERE id = ?',
+        [userResult.insertId, 'approved', localPaymentId]
     );
 
-    // notificar al trainer
-    await createNotificationService(trainer_id, `${student_name} pagou o plano`);
+    // notificar o trainer que o aluno pagou
+    await createNotificationService(trainer_id, `${name} pagou o plano`);
 
     return { status: 'approved' };
 }

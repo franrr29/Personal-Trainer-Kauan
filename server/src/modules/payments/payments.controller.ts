@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import { createPaymentService, getPaymentsByStudentIdService, getPaymentByIdService } from './payment.service';
+import { createPaymentService, getPaymentsByStudentIdService, getPaymentByIdService, createPublicPayment } from './payment.service';
 
 //funcao para criar um pagamento pelo treinador:
 export async function createPayment(req: Request, res: Response, next: NextFunction) {
@@ -66,6 +66,23 @@ export async function getPaymentById(req: Request, res: Response, next: NextFunc
         return res.status(200).json(payment);
     } catch (error) {
 
+        next(error);
+    }
+}
+
+
+//funcao para criar um pagamento publico sem precisar de login
+export async function createPublicPaymentController(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { name, email, phone, plan, amount, trainer_id } = req.body;
+
+        const payment = await createPublicPayment(name, email, phone, plan, amount, trainer_id);
+
+        return res.status(201).json({
+            message: "Public payment created successfully",
+            payment
+        });
+    } catch (error) {
         next(error);
     }
 }

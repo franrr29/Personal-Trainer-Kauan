@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import ExerciseService from './exercise.service';
-
+import * as ExerciseService from './exercise.service';
 //obter todos os excercicios:
 export async function getAll(req: Request, res: Response, next: NextFunction) {
     

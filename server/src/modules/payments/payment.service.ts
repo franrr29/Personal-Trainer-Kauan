@@ -74,3 +74,36 @@ export async function getPaymentByIdService(paymentId: number, trainerId: number
     return payment;
 
 }
+
+
+//funcao para criar um pagamento publico sem precisar de login, para o aluno pagar o plano:
+export async function createPublicPayment(name: string, email: string, phone: string, plan: string, amount: number, trainer_id: number) {
+    // guardar o pagamento na db do aluno sem id ainda:
+    const [result] = await db.execute<ResultSetHeader>(
+        "INSERT INTO payments (name, email, phone, plan, amount, trainer_id) VALUES (?, ?, ?, ?, ?, ?)",
+        [name, email, phone, plan, amount, trainer_id]
+    );
+
+    // gerar pago pix em mercado pago
+    const payment = new Payment(client);
+    const mpPayment = await payment.create({
+        body: {
+            transaction_amount: amount,
+            description: plan,
+            payment_method_id: 'pix',
+            payer: { email },
+        }
+    });
+
+    // Salvar o id do pagamento do mercado pago na db
+    await db.execute(
+        "UPDATE payments SET mp_payment_id = ? WHERE id = ?",
+        [String(mpPayment.id), result.insertId]
+    );
+
+    return {
+        qr_code: mpPayment.point_of_interaction?.transaction_data?.qr_code,
+        qr_code_base64: mpPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+        payment_id: result.insertId,
+    };
+}
