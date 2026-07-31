@@ -17,6 +17,7 @@ import paymentsRoutes from './modules/payments/payments.route';
 import webHookRoutes from './modules/webhooks/webHook.route';
 import notificationsRoutes from './modules/notifications/notific.route';
 import { errorHandler } from './middlewares/errorHandler';
+import plansRoutes from './modules/plans/plans.route';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -55,6 +56,7 @@ app.use('/api/routine-exercises', routineExercises);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/webhooks', webHookRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/plans', plansRoutes);
 
 //error handler middleware
 app.use(errorHandler);
