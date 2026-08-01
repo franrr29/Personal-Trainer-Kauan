@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createPlanService, getPlansService, updatePlanService, deletePlanService } from './plans.service';
+import { createPlanService, getPlansService, updatePlanService, deletePlanService, getPublicPlansService } from './plans.service';
 
 
 
@@ -91,6 +91,24 @@ export async function deletePlan(req: Request, res: Response, next: NextFunction
         await deletePlanService(planId, userId);
 
         return res.status(200).json({ message: 'Plan deleted successfully' });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+//trazer todos os planos publicos do treinador tiro o id caso na frnte queira adicionar outro coach:
+export async function getPublicPlans(req: Request, res: Response, next: NextFunction) {
+
+    try {
+
+        const { trainerId } = req.params;
+        const userId = Number(trainerId);
+
+        const publicPlans = await getPublicPlansService(userId);
+
+        return res.status(200).json(publicPlans);
 
     } catch (error) {
         next(error);

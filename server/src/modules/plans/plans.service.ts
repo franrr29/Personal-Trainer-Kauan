@@ -73,3 +73,12 @@ export async function deletePlanService(planId: number, userId: number): Promise
 
     await db.query("UPDATE plans SET active = false WHERE id = ? AND trainer_id = ?", [planId, userId]);
 }
+
+
+//buscar na tabela de planos publicos todos os planos ativos:
+export async function getPublicPlansService(userId: number): Promise<RowDataPacket[]> {
+
+    const [rows] = await db.query<RowDataPacket[]>("SELECT * FROM plans WHERE active = true AND trainer_id = ?", [userId]);
+
+    return rows;
+}

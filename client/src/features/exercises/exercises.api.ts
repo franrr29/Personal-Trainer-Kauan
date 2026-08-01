@@ -1,5 +1,5 @@
 import api from "../lib/axios";
-import { Exercise } from "../types/exercises";
+import type { Exercise } from "../types/exercises";
 
 
 //trazer todos os exercicios do treinador para mostrar no dash

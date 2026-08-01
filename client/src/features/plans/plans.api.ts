@@ -26,3 +26,9 @@ export async function deletePlan(id: string) {
     const response = await api.delete(`/plans/${id}`);
     return response.data;
 }
+
+//get aos planos publicos
+export async function getPublicPlans(trainerId: number) {
+    const response = await api.get(`/plans/public/${trainerId}`);
+    return response.data;
+}

@@ -9,6 +9,20 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE plans (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  trainer_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255) NULL,
+  features TEXT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  duration_value INT NOT NULL DEFAULT 1,
+  duration_unit ENUM('days', 'weeks', 'months', 'years') NOT NULL DEFAULT 'months',
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (trainer_id) REFERENCES users(id)
+);
+
 CREATE TABLE payments (
   id INT PRIMARY KEY AUTO_INCREMENT,
   user_id INT NOT NULL,

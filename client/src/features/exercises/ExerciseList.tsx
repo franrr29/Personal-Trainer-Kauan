@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getExercises } from "../exercises/exercises.api";
-import { Exercise } from "../types/exercises";
+import type { Exercise } from "../types/exercises";
 import { useState } from "react";
 
 //renderiza a lista de exercicios do treinador:

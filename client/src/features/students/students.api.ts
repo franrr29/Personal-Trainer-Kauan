@@ -7,4 +7,3 @@ export async function getStudents() {
     return response.data;
 }
 
-export async function createStudent(student: { name: string; email: string; password: string; }) {
