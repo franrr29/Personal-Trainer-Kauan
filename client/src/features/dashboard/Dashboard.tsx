@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { getStudents } from "../students/students.api";
+import { getExercises } from "../exercises/exercises.api";
 
 export default function Dashboard() {
 
