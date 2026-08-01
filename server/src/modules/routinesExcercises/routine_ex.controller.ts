@@ -14,9 +14,9 @@ export async function addExerciseToRoutine(req: Request, res: Response, next: Ne
 
     try {
 
-        const { routineId, exerciseId, sets, reps, notes, exercise_order } = req.body;
+        const { routineId, exerciseId, sets, reps, notes, exercise_order, rest_seconds } = req.body;
 
-        const addedExercise = await addExerciseToRoutineService({routineId, exerciseId, sets, reps, notes, exercise_order},userId);
+        const addedExercise = await addExerciseToRoutineService({routineId, exerciseId, sets, reps, rest_seconds, notes, exercise_order},userId);
 
         return res.status(201).json(addedExercise);
 

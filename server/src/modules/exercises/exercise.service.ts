@@ -30,14 +30,17 @@ export async function getExerciseById(id: number, trainer_id: number): Promise<R
 
 
 //criar um novo exercicio:
-export async function createExercise(exerciseData: { name: string; category: string; video_url?: string; description?: string; notes?: string },
-    trainerId: number): Promise<void> {
+export async function createExercise(exerciseData: { name: string; category: string; description?: string; notes?: string },
+    trainerId: number) {
 
-    const { name, category, video_url, description, notes } = exerciseData;
+    const { name, category, description, notes } = exerciseData;
 
-    const insertQuery = "INSERT INTO exercises (name, category, video_url, description, notes, trainer_id) VALUES (?, ?, ?, ?, ?, ?)";
+    const [result] = await db.query(
+        "INSERT INTO exercises (name, category, description, notes, trainer_id) VALUES (?, ?, ?, ?, ?)",
+        [name, category, description, notes, trainerId]
+    );
 
-    await db.query(insertQuery, [name, category, video_url, description, notes, trainerId]);
+    return { id: (result as any).insertId };
 }
 
 

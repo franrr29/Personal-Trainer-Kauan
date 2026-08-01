@@ -109,3 +109,15 @@ export async function deleteRoutine(req: Request, res: Response, next: NextFunct
         next(error);
     }
 }
+
+//funcao para trazer todas as rotinas de um aluno:
+export async function getMyRoutines(req: Request, res: Response, next: NextFunction) {
+    const { userId } = req;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    try {
+        const routines = await service.getMyRoutinesService(userId);
+        res.status(200).json(routines);
+    } catch (error) {
+        next(error);
+    }
+}

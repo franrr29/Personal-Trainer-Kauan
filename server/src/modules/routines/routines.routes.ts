@@ -10,6 +10,7 @@ const router = Router();
 router.post("/", authMiddleware, roleMiddleware(["trainer"]), controller.createRoutine);
 router.get("/student/:studentId", authMiddleware, roleMiddleware(["trainer"]), controller.getRoutinesByStudentId);
 router.get("/routine/:routineId", authMiddleware, roleMiddleware(["trainer"]), controller.getRoutineById);
+router.get('/my-routines', authMiddleware, roleMiddleware(['student']), controller.getMyRoutines);
 router.patch("/:routineId", authMiddleware, roleMiddleware(["trainer"]), controller.updateRoutine);
 router.delete("/:routineId", authMiddleware, roleMiddleware(["trainer"]), controller.deleteRoutine);
 

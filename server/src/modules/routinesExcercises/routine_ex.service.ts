@@ -3,7 +3,7 @@ import { RowDataPacket } from "mysql2";
 
 //funcao para adicionar um exercicio a uma rotina:
 export async function addExerciseToRoutineService(
-    { routineId, exerciseId, sets, reps, notes, exercise_order }: { routineId: number; exerciseId: number; sets: number; reps: number; notes: string; exercise_order: number },
+    { routineId, exerciseId, sets, reps, notes, exercise_order, rest_seconds }: { routineId: number; exerciseId: number; sets: number; reps: number; notes: string; exercise_order: number; rest_seconds: number },
     userId: number
 ) {
 
@@ -26,8 +26,8 @@ export async function addExerciseToRoutineService(
     }
 
     const [result] = await db.query(
-        "INSERT INTO routine_exercises (routine_id, exercise_id, sets, reps, notes, exercise_order) VALUES (?, ?, ?, ?, ?, ?)",
-        [routineId, exerciseId, sets, reps, notes, exercise_order]
+        "INSERT INTO routine_exercises (routine_id, exercise_id, sets, reps, notes, exercise_order, rest_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [routineId, exerciseId, sets, reps, notes, exercise_order, rest_seconds]
     );
     return result;
 }
@@ -46,9 +46,15 @@ export async function getExercisesByRoutineIdService(routineId: number, userId: 
     }
 
     const [exercises] = await db.query(
-        "SELECT re.id, re.routine_id, re.exercise_id, re.sets, re.reps, re.notes, re.exercise_order, e.name AS exercise_name FROM routine_exercises re JOIN exercises e ON re.exercise_id = e.id WHERE re.routine_id = ? ORDER BY re.exercise_order ASC",
+    `SELECT re.id, re.routine_id, re.exercise_id, re.sets, re.reps, 
+       re.rest_seconds, re.notes, re.exercise_order, 
+       e.name AS exercise_name, e.video_url
+FROM routine_exercises re 
+JOIN exercises e ON re.exercise_id = e.id 
+WHERE re.routine_id = ? 
+ORDER BY re.exercise_order ASC`,
         [routineId]
-    );
+);
 
     if (exercises.length === 0) {
         return [];
@@ -59,7 +65,7 @@ export async function getExercisesByRoutineIdService(routineId: number, userId: 
 
 
 //atualizar um exercicio de uma rotina pelo id da rotina e do exercicio:
-export async function updateExerciseInRoutineService(id: number, userId: number, { sets, reps, notes, exercise_order }: { sets: number; reps: number; notes: string; exercise_order: number }) {
+export async function updateExerciseInRoutineService(id: number, userId: number, { sets, reps, notes, exercise_order, rest_seconds }: { sets: number; reps: number; notes: string; exercise_order: number; rest_seconds: number }) {
 
     // verificar que el registro existe y la rutina es del trainer
     const [rows] = await db.query<RowDataPacket[]>(
@@ -94,6 +100,11 @@ export async function updateExerciseInRoutineService(id: number, userId: number,
     if (exercise_order !== undefined) {
         fieldsToUpdate.push("exercise_order = ?");
         values.push(exercise_order);
+    }
+
+    if (rest_seconds !== undefined) {
+        fieldsToUpdate.push("rest_seconds = ?");
+        values.push(rest_seconds);
     }
 
     if (fieldsToUpdate.length === 0) {

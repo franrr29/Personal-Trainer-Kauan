@@ -119,3 +119,12 @@ export async function deleteRoutineService(routineId: number, userId: number) {
 
   return result;
 }
+
+//funcao para trazer todas as rotinas de um aluno:
+export async function getMyRoutinesService(studentId: number) {
+    const [rows] = await db.query<RowDataPacket[]>(
+        "SELECT * FROM routines WHERE student_id = ?",
+        [studentId]
+    );
+    return rows;
+}

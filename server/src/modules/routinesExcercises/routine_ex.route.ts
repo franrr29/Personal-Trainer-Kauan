@@ -10,8 +10,7 @@ const router = Router();
 router.post("/add", authMiddleware, roleMiddleware(["trainer"]), addExerciseToRoutine);
 
 //pegar exercicios de uma rotina
-router.get("/:routineId", authMiddleware, roleMiddleware(["trainer"]), getExercisesByRoutineId);
-
+router.get("/:routineId", authMiddleware, roleMiddleware(["trainer", "student"]), getExercisesByRoutineId);
 //atualizar um exercicio de uma rotina
 router.put("/:id", authMiddleware, roleMiddleware(["trainer"]), updateExerciseInRoutine);
 
