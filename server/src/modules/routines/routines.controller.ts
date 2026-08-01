@@ -16,7 +16,7 @@ export async function createRoutine(req: Request, res: Response, next: NextFunct
        
         const { student_id, day, title, trainer_note } = req.body;
 
-        const newRoutine = await service.createRoutineService(student_id, day, title, trainer_note, userId);
+        const newRoutine = await service.createRoutineService({ student_id, day, title, trainer_note }, userId);
         res.status(201).json(newRoutine);
 
     } catch (error) {

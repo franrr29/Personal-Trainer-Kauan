@@ -32,3 +32,4 @@ export async function getPublicPlans(trainerId: number) {
     const response = await api.get(`/plans/public/${trainerId}`);
     return response.data;
 }
+

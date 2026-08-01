@@ -75,32 +75,44 @@ export async function getPaymentByIdService(paymentId: number, trainerId: number
 
 }
 
+// criar pagamento publico sem login
+export async function createPublicPayment(name: string, email: string, phone: string, planId: string, trainer_id: number) {
 
-//funcao para criar um pagamento publico sem precisar de login, para o aluno pagar o plano:
-export async function createPublicPayment(name: string, email: string, phone: string, plan: string, amount: number, trainer_id: number) {
-    // guardar o pagamento na db do aluno sem id ainda:
-    const [result] = await db.execute<ResultSetHeader>(
-        "INSERT INTO payments (name, email, phone, plan, amount, trainer_id) VALUES (?, ?, ?, ?, ?, ?)",
-        [name, email, phone, plan, amount, trainer_id]
+    // buscar o plano real na db
+    const [rows] = await db.execute<RowDataPacket[]>(
+        "SELECT * FROM plans WHERE id = ? AND trainer_id = ? AND active = true",
+        [planId, trainer_id]
     );
 
-    // gerar pago pix em mercado pago
-    const payment = new Payment(client);
-    const mpPayment = await payment.create({
+    if (rows.length === 0) {
+        throw new Error("Plan not found or does not belong to the trainer");
+    }
+
+    const plan = rows[0];
+
+    // guardar pagamento na db sem user_id ainda
+    const [result] = await db.execute<ResultSetHeader>(
+        "INSERT INTO payments (name, email, phone, plan, amount, trainer_id) VALUES (?, ?, ?, ?, ?, ?)",
+        [name, email, phone, plan.name, plan.price, trainer_id]
+    );
+
+    // gerar pix no mercado pago com preco real do plano
+    const mpPayment = await new Payment(client).create({
         body: {
-            transaction_amount: amount,
-            description: plan,
+            transaction_amount: plan.price,
+            description: plan.name,
             payment_method_id: 'pix',
             payer: { email },
         }
     });
 
-    // Salvar o id do pagamento do mercado pago na db
+    // salvar id do mp na db
     await db.execute(
         "UPDATE payments SET mp_payment_id = ? WHERE id = ?",
         [String(mpPayment.id), result.insertId]
     );
 
+    // retornar qr code e id do pagamento
     return {
         qr_code: mpPayment.point_of_interaction?.transaction_data?.qr_code,
         qr_code_base64: mpPayment.point_of_interaction?.transaction_data?.qr_code_base64,

@@ -74,9 +74,11 @@ export async function getPaymentById(req: Request, res: Response, next: NextFunc
 //funcao para criar um pagamento publico sem precisar de login
 export async function createPublicPaymentController(req: Request, res: Response, next: NextFunction) {
     try {
-        const { name, email, phone, plan, amount, trainer_id } = req.body;
 
-        const payment = await createPublicPayment(name, email, phone, plan, amount, trainer_id);
+        //planId para seguridad sin que puedan modificar el monto si envio amount
+        const { name, email, phone, planId, trainer_id } = req.body;
+
+        const payment = await createPublicPayment(name, email, phone, planId, trainer_id);
 
         return res.status(201).json({
             message: "Public payment created successfully",
