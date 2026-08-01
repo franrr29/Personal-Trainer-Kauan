@@ -14,7 +14,7 @@ export async function createRoutine(routineData: { student_id: number; day: stri
 }
 
 //adiciona um exerccio a uma rotina ao aluno do treinador:
-export async function addExerciseToRoutine(data: { routineId: number; exerciseId: number; sets: number; reps: number; notes?: string; exercise_order: number }) {
+export async function addExerciseToRoutine(data: { routineId: number; exerciseId: number; sets: number; reps: number; rest_seconds: number; notes?: string; exercise_order: number }) {
     const response = await api.post("routine-exercises/add", data);
     return response.data;
 }

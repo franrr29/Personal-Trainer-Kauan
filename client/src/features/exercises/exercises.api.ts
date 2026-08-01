@@ -29,3 +29,11 @@ export async function deleteExercise(exerciseId: string) {
     const response = await api.delete(`/exercises/${exerciseId}`);
     return response.data;
 }
+
+//subir video de um exercicio
+export async function uploadExerciseVideo(exerciseId: number, file: File) {
+    const formData = new FormData();
+    formData.append('video', file);
+    const response = await api.post(`uploads/exercises/${exerciseId}/video`, formData);
+    return response.data;
+}
